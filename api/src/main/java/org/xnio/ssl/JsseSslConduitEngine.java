@@ -623,6 +623,10 @@ final class JsseSslConduitEngine {
                         // another thread could read more bytes as a side effect of a need unwrap
                         total += (long) copyUnwrappedData(dsts, offset, length, unwrappedBuffer);
                     }
+                    if (result.getStatus() == SSLEngineResult.Status.CLOSED) {
+                        sourceConduit.terminateReads();
+                        return -1L;
+                    }
                 }
             } while ((handleHandshake(result, false) || res > 0));
         } catch (SSLHandshakeException e) {
