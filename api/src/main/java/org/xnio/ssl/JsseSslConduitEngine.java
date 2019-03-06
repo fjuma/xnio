@@ -625,7 +625,7 @@ final class JsseSslConduitEngine {
                     }
                     if (result.getStatus() == SSLEngineResult.Status.CLOSED) {
                         sourceConduit.terminateReads();
-                        return -1L;
+                        break;
                     }
                 }
             } while ((handleHandshake(result, false) || res > 0));
