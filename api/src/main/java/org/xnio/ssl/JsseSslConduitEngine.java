@@ -480,6 +480,10 @@ final class JsseSslConduitEngine {
                         // given caller is reading, tell it to continue only if we can move away from  NEED_WRAP
                         // and flush any wrapped data we may have left
                         if (doFlush()) {
+                            if (result.getStatus() == SSLEngineResult.Status.CLOSED) {
+                                connection.close();
+                                return false;
+                            }
                             if (!handleWrapResult(result = engineWrap(Buffers.EMPTY_BYTE_BUFFER, buffer), true) || !doFlush()) {
                                 needWrap();
                                 return false;
@@ -629,10 +633,10 @@ final class JsseSslConduitEngine {
                         return total;
                     }
                     res = handleUnwrapResult(result = engineUnwrap(buffer, unwrappedBuffer));
-                    if (result.getStatus() == SSLEngineResult.Status.CLOSED && result.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NEED_WRAP && result.bytesProduced() == 0) {
+                    /*if (result.getStatus() == SSLEngineResult.Status.CLOSED && result.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NEED_WRAP && result.bytesProduced() == 0) {
                         sourceConduit.terminateReads();
                         return 0L;
-                    }
+                    }*/
                     if (unwrappedBuffer.position() > 0) { // test the position of the buffer instead of the
                         // the amount of produced bytes, because in a concurrent scenario, during this loop,
                         // another thread could read more bytes as a side effect of a need unwrap
